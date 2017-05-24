@@ -1,0 +1,11 @@
+{
+	"name": "jiyu-d-proto",
+	"authors": [
+		"milo",
+        "zach",
+        "trey"
+	],
+	"description": "Jiyunet prototype",
+	"copyright": "Copyright © 2017",
+	"license": "MIT"
+}
