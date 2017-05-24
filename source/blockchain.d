@@ -3,8 +3,9 @@
 */
 import std.outbuffer : OutBuffer;
 import std.bitmanip : nativeToBigEndian;
-
+import std.container.array : Array;
 import std.digest.sha : SHA256;
+
 alias protocol_digest = SHA256;
 
 // I don't know what the naming conventions for D are.
@@ -25,6 +26,7 @@ struct Artifact
     ArtifactHeader header;
     ArtifactData data;
 
+    /// updates the digest with this data
     void hash(protocol_digest* dig)
     {
         this.header.hash(dig);
@@ -38,6 +40,7 @@ struct ArtifactHeader
     addr_t author;
     ulong timestamp; // ulong = 8 bytes
 
+    /// updates the digest with this data
     void hash(protocol_digest* dig)
     {
         dig.put(this.author);
@@ -54,14 +57,27 @@ interface ArtifactData
     /// returns the credit cost the author payed to publish this artifact
     credit_t getCost();
 
-    /// update the digest
+    /// updates the digest with this data
     void hash(protocol_digest* dig);
 }
 
 
-
+/// a PoS block in the chain
 struct Block {
     sign_t signature;
     addr_t author;
     ulong timestamp;
+    addr_t prev;
+    Array!(addr_t) artifacts;
+
+    /// updates the digest with this data
+    void hash(protocol_digest* dig)
+    {
+        dig.put(this.author);
+        dig.put(nativeToBigEndian(this.timestamp));
+        dig.put(this.prev);
+        foreach(addr_t a; artifacts) {
+            dig.put(a);
+        }
+    }
 }

@@ -12,6 +12,7 @@ enum ArtifactType : uint
     TYPE_INVITE
 }
 
+/// an artifact that is not understood by the protocol but accepted anyways
 class UnknownArtifact : ArtifactData
 {
     uint type;
@@ -39,6 +40,7 @@ class UnknownArtifact : ArtifactData
     }
 }
 
+/// basic post mechanism: a reply to another post
 class ReplyArtifact : ArtifactData
 {
     addr_t replyTo;
