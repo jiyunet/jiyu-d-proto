@@ -1,8 +1,9 @@
 /*
   this file holds data definitions for the components of the blockchain
 */
-import core.time;
-import std.digest.sha;
+import std.outbuffer : OutBuffer;
+import std.bitmanip : nativeToBigEndian;
+import std.digest.sha : SHA256;
 
 alias BLOCKCHAIN_SHA = SHA256;
 
@@ -16,13 +17,18 @@ alias sign_t = ubyte[]; // SHA-256 -> 32 bytes
 // the same thing? something to think about...
 alias addr_t = ubyte[];
 
-
-
 struct Artifact
 {
     sign_t signature;
     ArtifactHeader header;
     ArtifactData data;
+
+    void hash(BLOCKCHAIN_SHA* dig)
+    {
+        dig.put(this.signature);
+        dig.put(nativeToBigEndian(this.header.timestamp));
+        this.data.hash(dig);
+    }
 }
 
 struct ArtifactHeader
@@ -33,9 +39,9 @@ struct ArtifactHeader
 
 interface ArtifactData
 {
-    credit_t cost();
     uint versionNum();
-    void hashContents(BLOCKCHAIN_SHA* dig);
-    // void serialize
-}
+    void hash(BLOCKCHAIN_SHA* dig);
+    credit_t cost();
 
+    void serialize(OutBuffer ob);
+}
