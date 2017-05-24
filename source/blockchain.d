@@ -25,8 +25,7 @@ struct Artifact
 
     void hash(BLOCKCHAIN_SHA* dig)
     {
-        dig.put(this.signature);
-        dig.put(nativeToBigEndian(this.header.timestamp));
+        this.header.hash(dig);
         this.data.hash(dig);
     }
 }
@@ -35,6 +34,12 @@ struct ArtifactHeader
 {
     addr_t author;
     ulong timestamp; // ulong = 64 bytes
+
+    void hash(BLOCKCHAIN_SHA* dig)
+    {
+        dig.put(this.author);
+        dig.put(nativeToBigEndian(this.timestamp));
+    }
 }
 
 interface ArtifactData
