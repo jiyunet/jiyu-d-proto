@@ -19,7 +19,7 @@ void main()
     auto a3 = Artifact(sig, ArtifactHeader([], 0u),
                        new ReplyArtifact([1,2,3], "Hello, world!!"));
 
-    BLOCKCHAIN_SHA sha;
+    protocol_digest sha;
 
     foreach (Artifact art; [a1, a2, a3]) {
         sha.start();
