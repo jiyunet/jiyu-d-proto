@@ -1,20 +1,21 @@
 /*
-  this file holds definitions of known artifact types
-*/
+ * this file holds definitions of known artifact types
+ */
 import std.algorithm.iteration;
 import std.outbuffer : OutBuffer;
 import std.array : array;
 import blockchain;
 
-enum ArtifactType : uint
-{
+enum ArtifactType : uint {
     TYPE_REPLY,
     TYPE_INVITE
 }
 
-/// an artifact that is not understood by the protocol but accepted anyways
-class UnknownArtifact : ArtifactData
-{
+/*
+ * an artifact that is not understood by the protocol but accepted anyways
+ */
+class UnknownArtifact : ArtifactData {
+
     uint type;
     uint ver;
     credit_t cost;
@@ -38,33 +39,33 @@ class UnknownArtifact : ArtifactData
     void hash(protocol_digest* dig) {
         dig.put(this.raw);
     }
+
 }
 
-/// basic post mechanism: a reply to another post
-class ReplyArtifact : ArtifactData
-{
+/*
+ * basic post mechanism: a reply to another post
+ */
+class ReplyArtifact : ArtifactData {
+
     addr_t replyTo;
     ubyte[] contents;
 
-    this(addr_t to, string text)
-    {
+    this(addr_t to, string text) {
         this.replyTo = to;
         this.contents = cast(ubyte[]) text.dup;
     }
 
-    uint getVersionNum()
-    {
+    uint getVersionNum() {
         return 0x0000;
     }
 
-    credit_t getCost()
-    {
+    credit_t getCost() {
         return 10;
     }
 
-    void hash(protocol_digest* dig)
-    {
+    void hash(protocol_digest* dig) {
         dig.put(this.replyTo);
         dig.put(this.contents);
     }
+    
 }

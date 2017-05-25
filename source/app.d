@@ -1,13 +1,12 @@
 /*
-  this file has the main entry point to the CLI
+ * this file has the main entry point to the CLI // FIXME This shouldn't be right.
  */
 import std.stdio;
 import std.digest.digest : toHexString;
 import blockchain;
 import artifacts;
 
-void main()
-{
+void main() {
     ubyte[] sig = [1, 2, 3, 4, 5, 6];
 
     auto a1 = Artifact(sig, ArtifactHeader([], 0u),
