@@ -28,6 +28,104 @@ artifact {
       .. contiguous
 }
 
+NOTES ON GENESIS BLOCKS
+    -TODO: talk about format of the genesis block-
+
+
+NOTES ON ARTIFACTS
+    all artifacts are accepted by the system as long as they are GENERALLY valid,
+    meaning that all of the below are true:
+      1) the author is a valid identity
+      2) the signature is correct
+      3) the timestamp is sensible (??)
+      4) the author has enough credit to pay the cost
+      5) all of the provided refs refer to existing artifacts
+
+    the cost of an artifact can be determined without interpreting its content. proportion
+    of this cost is distributed to all other identities that appear in the list of refs.
+    non-identity refs are used to provide information about posts, e.g. a thread reply
+    would include the OP as one of the refs.
+
+    a "soft reject" occurs when they above are true but the content of an artifact does
+    not make sense at the application layer. an example of a soft reject is a reply that
+    does not include a valid thread in its refs. in this case, the client is free to
+    disregard the artifact as meaningless while still including it in the chain. e.g.
+    don't display the post anywhere. however the client should still deduct costs and
+    distribute to other ref'd identities.
+    QUESTION: should clients be allowed to exclude soft-rejected artifacts when signing?
+    DISCUSSION: we could have a mechanism in which new artifact types can only be used if
+                they have been agreed on to be valid. outdated implementations would then
+                be able to accept new kinds of artifacts without knowing what they do, and
+                would be able to reject artifacts that have bogus types.
+
+
+ARTIFACT TYPES
+   0xiijk
+     i: namespace
+     j: cost modifier (???)
+     k: type distinguisher
+
+   DISCUSSION:
+     should cost modifiers be a thing? i'm fairly convinced that they should, and that
+     creating a new board should be expensive. we could also dedicate multiple artifact
+     types to invites, and have them vary in cost (and therefore vary in how much is
+     given to the new user).
+     this requires us to figure out what costs are reasonable, and then hardcode them
+     into artifact types. atm we have little idea of what are reasonable vs unreasonable
+     costs.
+
+
+   0x00XX          - important protocol behavior -
+     0x0000        root identity declaration
+       content: pubkey of the initial user
+       hard reject: always hard reject these kinds of artifacts unless it is the sole
+                    instance which occurs in the genesis block.
+
+     00000f        protocol upgrade
+       refs: (none required)
+       content: list of new artifact-types that are valid after this block
+                some sort of signature by active users (how do we determine this?)
+                to prove that a consensus was reached (this is iffy...)
+
+   0x01XX          - identities -
+     0x0140        declare new identity (invite)
+       refs: (none required)
+       content: pubkey of new user
+       soft reject: content not 4096 bits (base64??)
+
+     0x0120        declare user information
+       refs: (none required)
+       content: 'key: val' seperated by newlines
+                e.g. "name: Milo Turner\nemail: ...\n"
+       soft reject: if content is formatted badly (e.g. doesn't match some regex)
+
+   0x02XX          - messages and posts -
+     0x0280        create board
+       refs: (none required)
+             DISCUSSION: board admins?
+                         we could have a fucking fantastic board/admin/mod system
+                         if we created a vm language lol...
+       content: 1st line: name of board
+                2nd line: abbreviated name of board
+                rest of lines: board description
+       soft reject: if board name is too long (> 64 chars)
+                    if board name unspecified (no content)
+
+     0x0220        create thread
+       refs: id of board
+       content: 1st line: thread title
+                rest of lines: thread opening text
+
+     0x0210        reply to thread
+       refs: id of thread
+             id of reply-to users
+       content: message reply text
+
+     0x0200         react
+       refs: id of reply
+             id of user
+       content: facebook style reacts :-D
+                hehehe
 
 
 
@@ -38,6 +136,6 @@ artifact {
 
 VERIFICATION PSUEDOCODE
 
-all_blocks : [id => block]
-all_artifacts : [id => artifact]
-all_idents : [id => { credit : int }]
+global all_blocks : [id => block]
+global all_artifacts : [id => artifact]
+global all_idents : [id => { credit : int }]
