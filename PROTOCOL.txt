@@ -1,4 +1,5 @@
 time = unsigned 64-bit int     seconds since epoch
+id   = [byte x 32]             SHA-256 hash
 sig  = [byte x 32]             SHA-256 hash, encrypted with private key
 
 
@@ -6,9 +7,9 @@ PROTOCOL DATA FORMAT
 
 block {
     signature       : sig
-    author_ref      : sig
+    author_id       : id
     timestamp       : time
-    prev_block      : sig
+    prev_block      : id
     num_artifacts   : uint16 (0 <= n < 1024)
     artifacts       : [artifact x num_artifacts]
       .. contiguous
@@ -16,12 +17,12 @@ block {
 
 artifact {
     signature       : sig
-    author_ref      : sig
+    author_id       : id
     timestamp       : time
     type            : uint16
     num_refs        : uint8 (0 <= n < 128)
     length          : uint16 (0 <= n < 4096)
-    refs            : [sig x num_refs]
+    refs            : [id x num_refs]
       .. contiguous
     contents        : [byte x length]
       .. contiguous
@@ -32,104 +33,11 @@ artifact {
 
 
 
+
+
+
 VERIFICATION PSUEDOCODE
 
-
-add-artifact    : blockchain × artifact -> blockchain
-add-block       : blockchain × block -> blockchain
-get-artifact    : blockchain × sig -> artifact
-
-artifact-data   : artifact -> bytes
-block-data      : block -> bytes
-
-;; (primitives)
-
-
-
-
-block-traffic   : blockchain × block -> integer
-cost/type       : artifact-type -> integer
-cost/length     : integer -> integer
-cost/traffic    : integer -> integer
-cost            : blockchain × artifact -> integer
-credit          : blockchain × sig -> integer
-
-(define block-traffic (bc block)
-  (foldl (λ (block sum)
-           (+ sum (length block.artifacts)))
-         0
-         <last N block before the given block>))
-
-(define cost/type (ty)
-  ;; offset cost for this type of artifact
-  (case ty
-    [DECL => INITIAL-DEPOSIT]
-    [POST => 0]
-    [THREAD => 20]
-    [BOARD => 400]))
-
-(define cost/length (len)
-  ;; some function of the length of a post
-  (+ (/ k1 (sqr len))
-     (* k2 (sqr len))))
-
-(define cost/traffic (count)
-  ;; some function of the business of the network
-  (* k3 count))
-
-
-(define cost (bc artifact)
-  (+ (cost/type artifact.type)
-     (cost/length (length artifact.contents))
-     (cost/freq (block-freq (find (λ (block)
-                                    (member artifact block.artifacts))
-                                  bc.blocks)))))
-
-(define credit (bc identity-ref)
-  (foldl (λ (artifact credit)
-           (cond
-            ((= artifact.signature identity-ref)
-             INITIAL-DEPOSIT)
-            ((= artifact.author_ref identity-ref)
-             (- credit (cost bc artifact)))
-            (else
-             (foldl (λ (ref credit)
-                      (if (= ref identity-ref)
-                          (+ credit (* (cost bc artifact) TRANSFER-PROPORTION))
-                          credit))
-                    credit
-                    artifact.refs))))
-         0
-         bc.artifacts))
-
-
-
-valid-s?        : blockchain × sig × sig × bytes -> boolean
-valid-a?        : blockchain × artifact -> boolean
-valid-b?        : blockchain × block -> boolean
-
-(define valid-s? (bc sig author-ref data)
-  (let ((author (get-artifact bc author-ref))
-        (pubkey author.contents)
-        (hash (sha-hash-of data)))
-    (and (= author.type DECL)
-         (= (rsa-encrypt pubkey hash) sig))))
-
-(define valid-a? (bc artifact)
-  (and (valid-s? bc
-                 artifact.signature
-                 artifact.author_ref
-                 (artifact-data artifact))
-       (>= (credit bc artifact.sig)
-           (cost bc artifact))))
-
-(define valid-b? (bc block)
-  (and (valid-s? bc
-                 block.signature
-                 block.author_ref
-                 (block-data block))
-       (foldl (λ (artifact bc)
-                (and (valid-a? bc artifact)
-                     (add-artifact bc artifact)))
-              bc
-              block.artifacts)))
+all_blocks : [id => block]
+all_artifacts : [id => artifact]
+all_idents : [id => { credit : int }]
