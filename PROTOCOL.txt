@@ -85,16 +85,16 @@ credit          : blockchain × sig -> integer
                                     (member artifact block.artifacts))
                                   bc.blocks)))))
 
-(define credit (bc author-ref)
+(define credit (bc identity-ref)
   (foldl (λ (artifact credit)
            (cond
-            ((= artifact.signature author-ref)
+            ((= artifact.signature identity-ref)
              INITIAL-DEPOSIT)
-            ((= artifact.author_ref author-ref)
+            ((= artifact.author_ref identity-ref)
              (- credit (cost bc artifact)))
             (else
              (foldl (λ (ref credit)
-                      (if (= ref author-ref)
+                      (if (= ref identity-ref)
                           (+ credit (* (cost bc artifact) TRANSFER-PROPORTION))
                           credit))
                     credit
