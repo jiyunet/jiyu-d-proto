@@ -6,7 +6,7 @@ PROTOCOL DATA FORMAT
 
 block {
     signature       : sig
-    author-ref      : sig
+    author_ref      : sig
     timestamp       : time
     prev_block      : sig
     num_artifacts   : uint16 (0 <= n < 1024)
@@ -16,7 +16,7 @@ block {
 
 artifact {
     signature       : sig
-    author-ref      : sig
+    author_ref      : sig
     timestamp       : time
     type            : uint16
     num_refs        : uint8 (0 <= n < 128)
@@ -90,7 +90,7 @@ credit          : blockchain × sig -> integer
            (cond
             ((= artifact.signature author-sig)
              INITIAL-DEPOSIT)
-            ((= artifact.author-ref author-sig)
+            ((= artifact.author_ref author-sig)
              (- credit (cost bc artifact)))
             (else credit)))
          0
@@ -112,7 +112,7 @@ valid-b?        : blockchain × block -> boolean
 (define valid-a? (bc artifact)
   (and (valid-s? bc
                  artifact.signature
-                 artifact.author-ref
+                 artifact.author_ref
                  (artifact-data artifact))
        (>= (credit bc artifact.sig)
            (cost bc artifact))))
@@ -120,7 +120,7 @@ valid-b?        : blockchain × block -> boolean
 (define valid-b? (bc block)
   (and (valid-s? bc
                  block.signature
-                 block.author-ref
+                 block.author_ref
                  (block-data block))
        (foldl (λ (artifact bc)
                 (and (valid-a? bc artifact)
