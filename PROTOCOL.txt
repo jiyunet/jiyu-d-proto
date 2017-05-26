@@ -45,8 +45,12 @@ NOTES ON ARTIFACTS
     of this cost is distributed to all other identities that appear in the list of refs.
     non-identity refs are used to provide information about posts, e.g. a thread reply
     would include the OP as one of the refs.
+    DISCUSSION: the ability to transfer money essentially makes this a mini-economy where
+                all of the transactions are absurdly taxed. this might be a good thing; if
+                one wishes to give money to someone else you can just submit a bunch of bogus
+                (soft-rejected) posts.
 
-    a "soft reject" occurs when they above are true but the content of an artifact does
+    a "soft reject" occurs when the above are true but the content/refs of an artifact does
     not make sense at the application layer. an example of a soft reject is a reply that
     does not include a valid thread in its refs. in this case, the client is free to
     disregard the artifact as meaningless while still including it in the chain. e.g.
