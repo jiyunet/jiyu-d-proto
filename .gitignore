@@ -1,2 +1,4 @@
 jiyu-d-proto
 .dub
+*.o
+*.a
